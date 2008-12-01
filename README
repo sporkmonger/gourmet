@@ -1,0 +1,26 @@
+== Gourmet
+
+Homepage::  gourmet.rubyforge.org[http://gourmet.rubyforge.org/]
+Author::    Bob Aman  (mailto:bob@sporkmonger.com)
+Copyright:: Copyright © 2008 Bob Aman
+License::   MIT
+
+== Description
+
+Gourmet is an import/export library for cookbooks and recipes.
+
+== Features
+
+* A feature list goes here.
+
+== Example Usage
+
+# Some code goes here.
+
+== Requirements
+
+* Gourmet has no dependencies.
+
+== Install
+
+* sudo gem install gourmet
