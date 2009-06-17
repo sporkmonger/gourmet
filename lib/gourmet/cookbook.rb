@@ -21,28 +21,19 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # --
 
-require "gourmet/version"
+require "gourmet/utility/type_check"
+require "nokogiri"
 
 module Gourmet
-  def self.parse_type(obj)
-    begin
-      case obj
-      when /\-+.*Recipe (via|Extracted from) Meal-Master/
-        return :meal_master
-      when /\*?.*Exported from +MasterCook.*\*?/
-        return :master_cook
-      when Nokogiri::XML::Document
-        return :xml
-      when Nokogiri::HTML::Document
-        return :html
-      else
-        return :text if obj.gsub(/\bC\b/, "cup").gsub(/\bT\b/, "tbsp").scan(
-          /[\d\/ ]+ (cup|oz|lb|tsp|teaspoon|tbsp|tablespoon|gram)/i
-        ).size >= 3
-        return nil
-      end
-    rescue TypeError, ArgumentError
-      return nil
+  class Cookbook
+    def self.parse(obj)
+      return self.send("parse_#{self.parse_type(obj)}", obj)
+    end
+
+    def self.parse_meal_master(obj)
+      obj = Utility.convert(obj, String)
+      obj = obj.gsub(/\r+\n?/, "\n")
+      
     end
   end
 end

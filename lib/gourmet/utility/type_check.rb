@@ -21,28 +21,50 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # --
 
-require "gourmet/version"
-
 module Gourmet
-  def self.parse_type(obj)
-    begin
-      case obj
-      when /\-+.*Recipe (via|Extracted from) Meal-Master/
-        return :meal_master
-      when /\*?.*Exported from +MasterCook.*\*?/
-        return :master_cook
-      when Nokogiri::XML::Document
-        return :xml
-      when Nokogiri::HTML::Document
-        return :html
-      else
-        return :text if obj.gsub(/\bC\b/, "cup").gsub(/\bT\b/, "tbsp").scan(
-          /[\d\/ ]+ (cup|oz|lb|tsp|teaspoon|tbsp|tablespoon|gram)/i
-        ).size >= 3
-        return nil
+  module Utility
+    def self.convert(obj, type)
+      message = nil
+      if type == String
+        message = :to_str
+      elsif type == Integer
+        message = :to_int
+      elsif type == Array
+        message = :to_ary
+      elsif type == Hash
+        message = :to_hash
       end
-    rescue TypeError, ArgumentError
-      return nil
+      if message == nil
+        raise ArgumentError, "Unconvertable type: #{type}."
+      end
+      if obj.respond_to?(message)
+        return obj.send(message)
+      else
+        raise TypeError,
+          "Could not convert #{obj.class} into #{type}."
+      end
+    end
+
+    def self.respond_check(obj, *messages)
+      for message in messages
+        if !obj.respond_to?(message.to_sym)
+          raise TypeError,
+            "Expected #{obj.inspect} to respond to :#{message}."
+        end
+      end
+      return true
+    end
+
+    def self.type_check(obj, *types)
+      for type in types
+        return true if obj.kind_of?(type)
+      end
+      if types.size == 1
+        raise TypeError, "Expected #{types[0]}, got #{obj.class}."
+      else
+        raise TypeError,
+          "Expected one of: #{types.join(",")}.  Got #{obj.class}."
+      end
     end
   end
 end
