@@ -41,8 +41,11 @@ module Gourmet
         ["lb", "lbs"] => [
           "pounds", "pounds", "lbs", "lb"
         ],
-        ["qt", "qts"] => [
-          "quarts", "quart", "qts", "qt"
+        ["qt", "qt"] => [
+          "quarts", "quart", "qts", "qt", "q"
+        ],
+        ["pt", "pt"] => [
+          "pints", "pint", "pts", "pt", "p"
         ]
       }
       VULGAR_CHARS = {
@@ -161,6 +164,12 @@ module Gourmet
         self.name == other.name &&
         self.preparation == other.preparation &&
         self.section == other.section)
+    end
+
+    def to_a
+      return [
+        self.quantity, self.unit, self.name, self.preparation, self.section
+      ]
     end
 
     def to_str

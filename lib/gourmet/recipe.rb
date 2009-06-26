@@ -138,10 +138,29 @@ module Gourmet
         tag == "posted-mm" ||
         tag == "posted-mc"
       end
+      self.source = nil if self.source == ""
       if self.source == nil
-        self.source = self.directions[/^From the recipe file of (.*)$/, 1]
+        self.source =
+          self.directions[/^From the recipe file of (.*)$/i, 1]
       end
-      self.directions.gsub!(/^From the recipe file of .*$/, "")
+      if self.source == nil
+        self.source = self.directions[/^Recipe By:(.*)$/i, 1]
+      end
+      self.source = self.source.strip if self.source != nil
+      self.directions.gsub!(/^From the recipe file of .*$/i, "")
+      self.directions.gsub!(/^Recipe By:.*$/i, "")
+
+      # Remove excess cruft
+      self.directions.gsub!(/^From:.*$/i, "")
+      self.directions.gsub!(/^Date:.*$/i, "")
+      self.directions.gsub!(/^MC-RECIPE@MASTERCOOK.COM$/i, "")
+      self.directions.gsub!(/^MASTERCOOK RECIPES LIST SERVER$/i, "")
+      self.directions.gsub!(/^MC-RECIPE DIGEST .*$/i, "")
+      self.directions.gsub!(/^From the MasterCook recipe list\..*$/i, "")
+      self.directions.gsub!(
+        /^.*Downloaded from Glen's MM Recipe Archive.*$/i, "")
+      self.directions.gsub!(
+        /^.*http:\/\/www.erols.com\/hosey.*$/i, "")
       self.directions = self.directions.strip + "\n"
       return self
     end
