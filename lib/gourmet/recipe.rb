@@ -129,6 +129,8 @@ module Gourmet
       end
       recipe.directions = directions_body.strip + "\n"
       recipe.normalize!
+      # It's not a real recipe if there are no ingredients
+      return nil if recipe.ingredients.empty?
       return recipe
     end
 

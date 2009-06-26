@@ -119,7 +119,6 @@ RECIPE
   end
 end
 
-
 describe Gourmet::Recipe, "with fixture #2" do
   before do
     @recipe = Gourmet::Recipe.parse(read_fixture("mm/2.txt"))
@@ -203,5 +202,15 @@ dishes, if desired.) After spreading the remaining whipped cream in a thin
 layer over the top, place the crocks or dish under the broiler until the
 pudding is lightly browned. Chill before serving.
 RECIPE
+  end
+end
+
+describe Gourmet::Recipe, "with fixture #3" do
+  before do
+    @recipe = Gourmet::Recipe.parse(read_fixture("mm/3.txt"))
+  end
+
+  it "should not register as a recipe" do
+    @recipe.should == nil
   end
 end
