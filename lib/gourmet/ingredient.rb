@@ -131,6 +131,10 @@ module Gourmet
 
     def self.parse(obj)
       remainder = Utility.convert(obj, String).dup.strip
+
+      # Strip weird characters
+      remainder.gsub!(/-\303\277\303\277/, " ")
+
       ingredient = Ingredient.new
       ingredient.quantity = Parsing.vulgar_to_float(
         remainder[Parsing::QUANTITY, 0]
