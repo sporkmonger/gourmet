@@ -87,7 +87,7 @@ module Gourmet
         "^(([0-9]+ *)?(#{VULGAR_CHARS.keys.join('|')})|" +
         "([0-9]+ +)?[0-9]+/[0-9]+|[0-9]+\\.[0-9]+|[0-9]+)\\b"
       )
-      PREPARATION = /, *([^,]+)$/
+      PREPARATION = /(,|;|--) *([^,;-]+)/
 
       def self.vulgar_to_float(vulgar)
         case vulgar
@@ -140,7 +140,8 @@ module Gourmet
         remainder[Parsing::QUANTITY, 0]
       )
       remainder.gsub!(Parsing::QUANTITY, "")
-      ingredient.preparation = remainder[Parsing::PREPARATION, 1]
+      ingredient.preparation = remainder[Parsing::PREPARATION, 2]
+      ingredient.preparation.strip! if ingredient.preparation
       remainder.gsub!(Parsing::PREPARATION, "")
       remainder.strip!
       unit_search = lambda do |case_sensitive|
@@ -167,6 +168,10 @@ module Gourmet
       unit_search.call(true)
       unit_search.call(false)
       ingredient.name = remainder.strip
+      if ingredient.preparation && ingredient.preparation =~ /^or/i
+        ingredient.name << (" " + ingredient.preparation)
+        ingredient.preparation = nil
+      end
       return ingredient
     end
 

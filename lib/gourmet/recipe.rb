@@ -29,6 +29,9 @@ require "nokogiri"
 module Gourmet
   class Recipe
     module MealMaster
+      ALL_UNITS = Regexp.new(
+        "(#{Gourmet::Ingredient::Parsing::ALL_UNITS.join("|")})"
+      )
       SEPARATOR = /\-\-\-\-\-|MMMMM/
       HEADER = /^#{SEPARATOR}[\S ]*Meal-Master[\S ]*$/
       TITLE = /^ *Title: ([\S ]*)$/
@@ -36,13 +39,15 @@ module Gourmet
       SERVINGS = /^ *(Yield|Servings): ([\S ]*)$/
       SOURCE = /^ *Source: ([\S ]*)$/
       SECTION = /^#{SEPARATOR}([\S ]*)$/
-      AMOUNT = /[\d\.\/ ]{7}/
-      UNIT = /[a-zTCGL ]{2}/
-      INGREDIENT_ONE = /^((#{AMOUNT}) (#{UNIT}) ([\S ]{1,30}))$/
+      AMOUNT = /[\d\.\/ ]{7,9}/
+      UNIT = /[a-zTBCGL ]{2}/
+      INGREDIENT_ONE = /^((#{AMOUNT}) (#{UNIT}) ([^\n]+))$/
       INGREDIENT_TWO = Regexp.new(
         "^((#{AMOUNT}) (#{UNIT}) ([\\S ]{28,30})) " +
         "((#{AMOUNT}) (#{UNIT}) ([\\S ]{1,30}))$"
       )
+      DROPPED_INGREDIENT =
+        /^([a-zA-Z ]*((\d[\d\.\/ ]*) (#{ALL_UNITS}) ([\S ]{1,30})))$/
       FOOTER = /^#{SEPARATOR}$/
     end
 
@@ -94,6 +99,17 @@ module Gourmet
       obj[0..(obj =~ /\n/)] = ""
 
       lines = obj.scan(/^.*$/)
+      index = lines.size
+      while index > 0
+        index -= 1
+        line = lines[index]
+        if line.strip =~ /^[:;]/
+          previous_line = lines[index - 1]
+          previous_line.chomp!(" ")
+          previous_line << (" " + line.strip.gsub(/^[:;]/, "").strip)
+          line.gsub!(/.*/, "")
+        end
+      end
       current_section = nil
       recipe.ingredients = []
       directions_body = ""
@@ -107,22 +123,43 @@ module Gourmet
         elsif line =~ MealMaster::SECTION
           raw_section = obj[MealMaster::SECTION, 1]
           puts "Section: " + raw_section.inspect
-        elsif line =~ MealMaster::INGREDIENT_ONE
-          _, amount, unit, ingredient =
-            line.scan(MealMaster::INGREDIENT_ONE)[0]
-          recipe.ingredients << Gourmet::Ingredient.parse([
-            amount.strip, unit.strip, ingredient.strip
-          ].join(" "))
         elsif line =~ MealMaster::INGREDIENT_TWO
           _, amount_one, unit_one, ingredient_one,
           _, amount_two, unit_two, ingredient_two =
             line.scan(MealMaster::INGREDIENT_TWO)[0]
-          recipe.ingredients << Gourmet::Ingredient.parse([
-            amount_one.strip, unit_one.strip, ingredient_one.strip
-          ].join(" "))
-          recipe.ingredients << Gourmet::Ingredient.parse([
-            amount_two.strip, unit_two.strip, ingredient_two.strip
-          ].join(" "))
+          if amount_one.strip == "" && unit_one.strip == "" &&
+              ingredient_one =~ /^[-:;]/
+            recipe.ingredients[-2].name << ingredient_one.gsub(/^-/, " ")
+            recipe.ingredients[-2].name.strip!
+          else
+            recipe.ingredients << Gourmet::Ingredient.parse([
+              amount_one.strip, unit_one.strip, ingredient_one.strip
+            ].join(" "))
+          end
+          if amount_two.strip == "" && unit_two.strip == "" &&
+              ingredient_two =~ /^[-:;]/
+            recipe.ingredients[-1].name << ingredient_two.gsub(/^-/, " ")
+            recipe.ingredients[-1].name.strip!
+          else
+            recipe.ingredients << Gourmet::Ingredient.parse([
+              amount_two.strip, unit_two.strip, ingredient_two.strip
+            ].join(" "))
+          end
+        elsif line =~ MealMaster::INGREDIENT_ONE
+          _, amount, unit, ingredient =
+            line.scan(MealMaster::INGREDIENT_ONE)[0]
+          if amount.strip == "" && unit.strip == "" && ingredient =~ /^[-:;]/
+            recipe.ingredients.last.name << ingredient.gsub(/^-/, " ")
+            recipe.ingredients.last.name.strip!
+          else
+            recipe.ingredients << Gourmet::Ingredient.parse([
+              amount.strip, unit.strip, ingredient.strip
+            ].join(" "))
+          end
+        elsif line =~ MealMaster::DROPPED_INGREDIENT
+          recipe.ingredients << Gourmet::Ingredient.parse(
+            line.scan(MealMaster::DROPPED_INGREDIENT).first.first
+          )
         else
           directions_body << (line.strip + "\n")
         end
@@ -141,18 +178,43 @@ module Gourmet
         tag == "posted-mc"
       end
       self.source = nil if self.source == ""
+
+      # Preprocess messed up directions
+      self.directions.gsub!(/^(.+) Posted to(.*)$/i, "\\1\nPosted to\\2")
+
+      # Normalize cooking temperatures
+      self.directions.gsub!(/\b(\d+)\s*(F|C)\b/, "\\1°\\2")
+      self.directions.gsub!(/\b(\d+)\s*ø\s*f\b/i, "\\1°F")
+      self.directions.gsub!(/\b(\d+)\s*ø\s*c\b/i, "\\1°C")
+      self.directions.gsub!(/\b(\d+)\s*o\s+(F|C)\b/, "\\1°\\2")
+      self.directions.gsub!(/\b(\d+)\s*degrees\s+f\b/i, "\\1°F")
+      self.directions.gsub!(/\b(\d+)\s*degrees\s+c\b/i, "\\1°C")
+      self.directions.gsub!(/\b(\d+)\s*degrees\b/i, "\\1°F")
+
+      # Normalize lists
+      self.directions.gsub!(/[\n\s]+(\d+[\.\)\-])[ \t]+/, "\n\n\\1 ")
+
+      # Normalize source
       if self.source == nil
         self.source =
           self.directions[/^From the recipe file of (.*)$/i, 1]
       end
       if self.source == nil
-        self.source = self.directions[/^Recipe By:(.*)$/i, 1]
+        self.source = self.directions[/^Recipe By\s*:(.*)$/i, 1]
       end
-      self.source = self.source.strip if self.source != nil
       self.directions.gsub!(/^From the recipe file of .*$/i, "")
-      self.directions.gsub!(/^Recipe By:.*$/i, "")
+      self.directions.gsub!(/^Recipe By\s*:.*$/i, "")
+
+      # Normalize yield
+      if self.servings == nil || self.servings == "1 servings"
+        if self.directions =~ /Yield\s*:[^\.]+\./
+          self.servings = self.directions[/Yield\s*:([^\.]+)\./, 1].strip
+        end
+      end
+      self.directions.gsub!(/Yield\s*:[^\.]+\./, "")
 
       # Remove excess cruft
+      self.directions.gsub!(/^Posted to(.|\n)+/, "")
       self.directions.gsub!(/^From:.*$/i, "")
       self.directions.gsub!(/^Date:.*$/i, "")
       self.directions.gsub!(/^MC-RECIPE@MASTERCOOK.COM$/i, "")
@@ -163,6 +225,11 @@ module Gourmet
         /^.*Downloaded from Glen's MM Recipe Archive.*$/i, "")
       self.directions.gsub!(
         /^.*http:\/\/www.erols.com\/hosey.*$/i, "")
+      if self.source == nil && self.directions =~ /Florence Taft Eaton/
+        self.source = self.directions[/(Florence Taft Eaton.*)$/i, 1]
+        self.directions.gsub!(/Florence Taft Eaton.*$/i, "")
+      end
+      self.source = self.source.strip if self.source != nil
       self.directions = self.directions.strip + "\n"
       return self
     end
