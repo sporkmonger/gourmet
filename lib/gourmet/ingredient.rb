@@ -28,6 +28,20 @@ require "gourmet/utility/type_check"
 module Gourmet
   class Ingredient
     module Parsing
+      UNIT_SORT = lambda do |a, b|
+        if (b.size <=> a.size) != 0
+          # Sort first by size
+          b.size <=> a.size
+        elsif a.downcase != a
+          # Then by case
+          -1
+        elsif b.downcase != b
+          1
+        else
+          # Then by letter
+          a <=> b
+        end
+      end
       UNITS = {
         ["cup", "cups"] => [
           "cups", "cup", "C"
@@ -46,8 +60,12 @@ module Gourmet
         ],
         ["pt", "pt"] => [
           "pints", "pint", "pts", "pt", "p"
+        ],
+        ["slice", "slices"] => [
+          "slices", "slice", "slcs", "slc", "sl"
         ]
       }
+      ALL_UNITS = UNITS.values.flatten.uniq.sort(&UNIT_SORT)
       VULGAR_CHARS = {
         "¼" => (1.0/4.0),
         "½" => (1.0/2.0),
