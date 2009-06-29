@@ -383,6 +383,53 @@ describe Gourmet::Recipe, "with fixture #6" do
     @recipe.ingredients.should include(
       Gourmet::Ingredient.new(2, "lbs", "lamb", "cubed")
     )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, "large", "onion", "peeled and minced")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(4, nil, "cloves garlic", "peeled and minced")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(2, nil, "carrots", "peeled and cut into")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, nil, "celery root", "peeled and cut into")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(
+        4, "large", "red ripe tomatoes", "peeled cored and se"
+      )
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, nil, "acorn squash", "peeled and cut into")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, nil, "acorn squash", "peeled and cut into")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(2, "qt", "chicken broth or beef broth")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, "large", "pumpkin", "about 5 pounds")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, "cup", "Basmati rice", "uncooked")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(0.5, "tsp", "salt")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, "tsp", "black pepper", "freshly ground")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, "tsp", "black pepper", "freshly ground")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(0.25, "cup", "coriander leaves", "minced")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(0.75, "cup", "parsley leaves", "minced")
+    )
   end
 
   it "should have the correct directions" do

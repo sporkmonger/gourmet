@@ -63,6 +63,9 @@ module Gourmet
         ],
         ["slice", "slices"] => [
           "slices", "slice", "slcs", "slc", "sl"
+        ],
+        ["large", "large"] => [
+          "large", "lg"
         ]
       }
       ALL_UNITS = UNITS.values.flatten.uniq.sort(&UNIT_SORT)
@@ -172,6 +175,7 @@ module Gourmet
         ingredient.name << (" " + ingredient.preparation)
         ingredient.preparation = nil
       end
+      ingredient.normalize!
       return ingredient
     end
 
@@ -220,6 +224,15 @@ module Gourmet
 
     def inspect
       self.to_str.inspect
+    end
+
+    def normalize!
+      if self.name =~ /freshly ground black pepper/i &&
+          self.preparation == nil
+        self.name = "black pepper"
+        self.preparation = "freshly ground"
+      end
+      self
     end
   end
 end
