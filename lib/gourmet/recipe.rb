@@ -47,7 +47,7 @@ module Gourmet
         "((#{AMOUNT}) (#{UNIT}) ([\\S ]{1,30}))$"
       )
       DROPPED_INGREDIENT =
-        /^([a-zA-Z ]*((\d[\d\.\/ ]*) (#{ALL_UNITS}) ([\S ]{1,30})))$/
+        /^([a-zA-z ]*((\d[\d\.\/ ]*) (#{ALL_UNITS}) ([\S ]{1,30})))$/
       FOOTER = /^#{SEPARATOR}$/
     end
 
@@ -110,6 +110,7 @@ module Gourmet
           line.gsub!(/.*/, "")
         end
       end
+      body_started = false
       current_section = nil
       recipe.ingredients = []
       directions_body = ""
@@ -156,11 +157,12 @@ module Gourmet
               amount.strip, unit.strip, ingredient.strip
             ].join(" "))
           end
-        elsif line =~ MealMaster::DROPPED_INGREDIENT
+        elsif body_started == false && line =~ MealMaster::DROPPED_INGREDIENT
           recipe.ingredients << Gourmet::Ingredient.parse(
             line.scan(MealMaster::DROPPED_INGREDIENT).first.first
           )
-        else
+        elsif line.strip.size > 0
+          body_started = true
           directions_body << (line.strip + "\n")
         end
       end
@@ -175,7 +177,8 @@ module Gourmet
       self.tags ||= []
       self.tags.reject! do |tag|
         tag == "posted-mm" ||
-        tag == "posted-mc"
+        tag == "posted-mc" ||
+        tag == "publication"
       end
       self.source = nil if self.source == ""
 
@@ -192,7 +195,12 @@ module Gourmet
       self.directions.gsub!(/\b(\d+)\s*degrees\b/i, "\\1°F")
 
       # Normalize lists
-      self.directions.gsub!(/[\n\s]+(\d+[\.\)\-])[ \t]+/, "\n\n\\1 ")
+      if self.directions.scan(/\b(\d+[\.\)\-])\b/).size > 2
+        self.directions.gsub!(/[\n\s]+(\d+[\.\)\-])[ \t]+/, "\n\n")
+        self.directions.gsub!(/^(\d+[\.\)\-])[ \t]+/, "\n\n")
+      else
+        self.directions.gsub!(/\.\s*\n\s*/, ".\n\n")
+      end
 
       # Normalize source
       if self.source == nil

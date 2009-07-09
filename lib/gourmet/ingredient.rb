@@ -64,6 +64,9 @@ module Gourmet
         ["slice", "slices"] => [
           "slices", "slice", "slcs", "slc", "sl"
         ],
+        ["small", "small"] => [
+          "small", "sm"
+        ],
         ["large", "large"] => [
           "large", "lg"
         ]
@@ -226,11 +229,34 @@ module Gourmet
       self.to_str.inspect
     end
 
+    def singular?
+      return self.quantity && self.quantity <= 1.0
+    end
+
+    def plural?
+      return !singular?
+    end
+
     def normalize!
       if self.name =~ /freshly ground black pepper/i &&
           self.preparation == nil
         self.name = "black pepper"
         self.preparation = "freshly ground"
+      end
+      downcased_ingredients = [
+        /black pepper/i,
+        /salt/i,
+        /(red|yellow|green) peppers?/i,
+        /parsley/i,
+        /onion/i,
+        /olive oil/i
+      ]
+      if self.name &&
+          downcased_ingredients.any? { |regexp| self.name =~ regexp }
+        self.name.downcase!
+      end
+      if self.plural? && self.name == "onion"
+        self.name = "onions"
       end
       self
     end

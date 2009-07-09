@@ -94,19 +94,23 @@ describe Gourmet::Recipe, "with fixture #1" do
   it "should have the correct directions" do
     @recipe.directions.should == <<-RECIPE
 Cut and fluff 1 lb of Kadayif dough in bowl with hands.
+
 Add half melted butter and mix until strands are evenly coated.
+
 Spread evenly in lightly buttered 17x13-inch baking pan.
 
 Combine half and half and heavy cream in large saucepan. Bring to slow
 boil over low heat.
 
 Combine cornstarch and milk, stirring until cornstarch is dissolved.
+
 Slowly add to cream mixture, stirring constantly, until mixture returns
 to slow boil. Spread hot cream filling over kadayif in pan.
 
 Cut and fluff remaining 1 lb. of kadayif in bowl. Add remaining melted
 butter and mix with hands until strands are evenly coated. Spread over
 top of cream layer, pressing down firmly to form an even surface.
+
 Place on lowest oven rack and bake at 450°F. until golden brown,
 about 20-25 minutes. If not golden, move pan to top rack and bake 5 to
 10 minutes longer.
@@ -148,7 +152,7 @@ describe Gourmet::Recipe, "with fixture #2" do
       Gourmet::Ingredient.new(1, "pt", "Heavy cream")
     )
     @recipe.ingredients.should include(
-      Gourmet::Ingredient.new(0.5, "tsp", "Salt")
+      Gourmet::Ingredient.new(0.5, "tsp", "salt")
     )
     @recipe.ingredients.should include(
       Gourmet::Ingredient.new(1, nil, "Vanilla bean")
@@ -296,7 +300,7 @@ describe Gourmet::Recipe, "with fixture #5" do
       Gourmet::Ingredient.new(2, "tbsp", "Melted butter or butter substitute")
     )
     @recipe.ingredients.should include(
-      Gourmet::Ingredient.new(0.5, "tsp", "Salt")
+      Gourmet::Ingredient.new(0.5, "tsp", "salt")
     )
     @recipe.ingredients.should include(
       Gourmet::Ingredient.new(2, nil, "Eggs", "well beaten")
@@ -329,6 +333,7 @@ describe Gourmet::Recipe, "with fixture #5" do
 Scald milk, at night, and add butter and salt.  Cool until lukewarm. Add
 yeast, softened in lukewarm water, and nutmeg or cinnamon. Cut in enough
 flour to make of soft roll dough consistency. Cover and let rise overnight.
+
 Next morning cut down, add sugar, eggs, and enough additional flour to form
 a soft roll dough. Cover and let rise until double in bulk. Turn onto
 lightly floured board, roll in sheet 1/3 inch thick, cut with lightly
@@ -434,7 +439,7 @@ describe Gourmet::Recipe, "with fixture #6" do
 
   it "should have the correct directions" do
     @recipe.directions.should == <<-RECIPE
-1.  Combine coriander, cardamom, cinnamon, cumin and
+Combine coriander, cardamom, cinnamon, cumin and
 clove in a spice mill or coffee grinder.  Grind until
 smooth.  Set aside.  Head a tblsp of oil in large,
 heavy-bottom saucepan.  Add the lamb in one layer.
@@ -442,7 +447,7 @@ Sprinkle with the spice mixture.  Seer over medium
 heat until lightly browned, about 3-5 minutes.  Remove
 the lamb from the pan and set aside.
 
-2. Add the onion
+Add the onion
 and garlic to the pan.  Saute, stirring frequently,
 until translucent, about 5 minutes.  Add the carrots,
 celery root, tomatoes, and acorn squash. Add the
@@ -450,17 +455,85 @@ broth.  Return lamb to the pan. Partly cover and
 gently simmer until the lamb is tender, about 1.5 to 2
 hours.  Season with salt and pepper.
 
-3. Meanwhile,
+Meanwhile,
 preheat the oven to 350°F.  Place the pumpkin on
 a baking sheet.  Brush the outside with the remaining
 oil. Bake until tender, about 45 to 60 minutes.  Cook
 the rice according to package directions, set aside.
 
-4. To assemble, place the pumpkin in a serving dish.
+To assemble, place the pumpkin in a serving dish.
 Fill with the lamb stew.  Divide the rice among 4
 warmed bowls. Ladle the stew from the pumpkin over the
 rice.  Garnish with coriander and parsley. Serve
 immediately.
+RECIPE
+  end
+end
+
+describe Gourmet::Recipe, "with fixture #7" do
+  before do
+    @recipe = Gourmet::Recipe.parse(read_fixture("mm/7.txt"))
+  end
+
+  it "should have the correct title" do
+    @recipe.title.should == "ARNAVUT CIGERI (LAMB'S LIVER WITH RED PEPPERS"
+  end
+
+  it "should have the correct tags" do
+    @recipe.tags.should include("middle east")
+    @recipe.tags.should include("turkish")
+    @recipe.tags.should include("side dish")
+    @recipe.tags.should include("offal")
+    @recipe.tags.should_not include("publication")
+  end
+
+  it "should have the correct servings" do
+    @recipe.servings.should == "4 servings"
+  end
+
+  it "should have no source" do
+    @recipe.source.should == nil
+  end
+
+  it "should have the correct ingredients" do
+    @recipe.ingredients.should_not include(
+      Gourmet::Ingredient.new(
+        nil, nil, "sprinkle with 1 tablespoon of the salt, and turn them"
+      )
+    )
+    @recipe.ingredients.should_not include(
+      Gourmet::Ingredient.new(
+        nil, nil, "sprinkle with 1 tablespoon of the salt", "and turn them"
+      )
+    )
+  end
+
+  it "should have the correct directions" do
+    @recipe.directions.should == <<-RECIPE
+Place the onion rings in a sieve or colander,
+sprinkle with 1 tablespoon of the salt, and turn them
+about with a spoon to coat them evenly. Let them rest
+at room temperature for 30 minutes, then rinse under
+warm running water and squeeze them gently but
+completely dry. In a large bowl, toss the onions,
+parsley and red pepper together until well mixed. Set
+aside.
+
+Drop the liver into a bowl, pour in the raki and
+stir together for a few seconds.  Then pour off the
+raki.  Toss the liver and flour together in another
+bowl, place the liver in a sieve and shake through all
+the excess flour.  In a heavy 10 to 12 inch skillet,
+heat the oil over high heat until a light haze forms
+above it.  Add the liver and stir it about in the hot
+oil for 1 or 2 minutes, or until the cubes are lightly
+browned. Stir in the remaining 1/4 teaspoon of salt
+and a few grindings of pepper. With a slotted spoon,
+transfer the liver to paper towels to drain.
+
+Mound the liver in the center of a heated platter,
+arrange the onion-ring mixture and red pepper strips
+around it and serve at once.
 RECIPE
   end
 end
