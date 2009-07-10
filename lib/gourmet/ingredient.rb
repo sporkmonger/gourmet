@@ -182,6 +182,12 @@ module Gourmet
       return ingredient
     end
 
+    def self.append(ingredient, obj)
+      return self.parse(
+        ingredient.to_str + " " + Utility.convert(obj, String).strip
+      )
+    end
+
     def initialize(
         quantity=nil, unit=nil, name=nil, preparation=nil, section=nil)
       self.quantity = quantity
@@ -257,6 +263,10 @@ module Gourmet
       end
       if self.plural? && self.name == "onion"
         self.name = "onions"
+      end
+      if self.preparation && self.preparation.size > 35
+        self.name = "#{self.name}, #{self.preparation}"
+        self.preparation = nil
       end
       self
     end

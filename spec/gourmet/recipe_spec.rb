@@ -315,7 +315,7 @@ describe Gourmet::Recipe, "with fixture #5" do
       Gourmet::Ingredient.new(0.5, nil, "Cake dry yeast")
     )
     @recipe.ingredients.should include(
-      Gourmet::Ingredient.new(nil, nil, "OR 1/2  cake compressed yeast")
+      Gourmet::Ingredient.new(nil, nil, "OR 1/2 cake compressed yeast")
     )
     @recipe.ingredients.should include(
       Gourmet::Ingredient.new(0.25, "cup", "Lukewarm water")
@@ -324,7 +324,7 @@ describe Gourmet::Recipe, "with fixture #5" do
       Gourmet::Ingredient.new(0.25, "tsp", "Nutmeg")
     )
     @recipe.ingredients.should include(
-      Gourmet::Ingredient.new(nil, nil, "OR 1/4  tsp cinnamon")
+      Gourmet::Ingredient.new(nil, nil, "OR 1/4 tsp cinnamon")
     )
   end
 
@@ -534,6 +534,71 @@ transfer the liver to paper towels to drain.
 Mound the liver in the center of a heated platter,
 arrange the onion-ring mixture and red pepper strips
 around it and serve at once.
+RECIPE
+  end
+end
+
+describe Gourmet::Recipe, "with fixture #8" do
+  before do
+    @recipe = Gourmet::Recipe.parse(read_fixture("mm/8.txt"))
+  end
+
+  it "should have the correct title" do
+    @recipe.title.should == "TURKISH EGGPLANT SALAD"
+  end
+
+  it "should have the correct tags" do
+    @recipe.tags.should include("salads")
+    @recipe.tags.should include("appetizers")
+    @recipe.tags.should include("vegetables")
+  end
+
+  it "should have the correct servings" do
+    @recipe.servings.should == "4 servings"
+  end
+
+  it "should have the correct source" do
+    @recipe.source.should ==
+      "Ayla Esen Algar, \"The Complete Book of Turkish Cooking\""
+  end
+
+  it "should have the correct ingredients" do
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1, "large", "Eggplant")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(nil, nil, "Juice of 1/2 lemon")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(nil, nil, "salt")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(1.0/3.0, "cup", "extra virgin olive oil")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(2, "tsp", "Mashed garlic")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(2.5, "tbsp", "Vinegar")
+    )
+    @recipe.ingredients.should include(
+      Gourmet::Ingredient.new(
+        nil, nil, "Tomato slices, onion slices black Greek olives for garnish"
+      )
+    )
+  end
+
+  it "should have the correct directions" do
+    @recipe.directions.should == <<-RECIPE
+Cook unpeeled eggplant until it is charred on the
+outside & the flesh is thoroughly soft.  Cool slightly
+& then peel.  Wipe clean & squeeze out all the water.
+
+Place eggplant in a bowl with the lemon juice & salt.
+
+Mash well.  Add olive oil, garlic & vinegar, blend
+thoroughly.  Serve on a plate garnished with tomato,
+onion & olives.
 RECIPE
   end
 end

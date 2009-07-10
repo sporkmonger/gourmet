@@ -129,18 +129,20 @@ module Gourmet
           _, amount_two, unit_two, ingredient_two =
             line.scan(MealMaster::INGREDIENT_TWO)[0]
           if amount_one.strip == "" && unit_one.strip == "" &&
-              ingredient_one =~ /^[-:;]/
-            recipe.ingredients[-2].name << ingredient_one.gsub(/^-/, " ")
-            recipe.ingredients[-2].name.strip!
+              ingredient_one =~ /^[-:;]+/
+            recipe.ingredients[-2] = Gourmet::Ingredient.append(
+              recipe.ingredients[-2], ingredient_one.gsub(/^[-:;]+/, " ")
+            )
           else
             recipe.ingredients << Gourmet::Ingredient.parse([
               amount_one.strip, unit_one.strip, ingredient_one.strip
             ].join(" "))
           end
           if amount_two.strip == "" && unit_two.strip == "" &&
-              ingredient_two =~ /^[-:;]/
-            recipe.ingredients[-1].name << ingredient_two.gsub(/^-/, " ")
-            recipe.ingredients[-1].name.strip!
+              ingredient_two =~ /^[-:;]+/
+            recipe.ingredients[-1] = Gourmet::Ingredient.append(
+              recipe.ingredients[-1], ingredient_two.gsub(/^[-:;]+/, " ")
+            )
           else
             recipe.ingredients << Gourmet::Ingredient.parse([
               amount_two.strip, unit_two.strip, ingredient_two.strip
@@ -149,9 +151,10 @@ module Gourmet
         elsif line =~ MealMaster::INGREDIENT_ONE
           _, amount, unit, ingredient =
             line.scan(MealMaster::INGREDIENT_ONE)[0]
-          if amount.strip == "" && unit.strip == "" && ingredient =~ /^[-:;]/
-            recipe.ingredients.last.name << ingredient.gsub(/^-/, " ")
-            recipe.ingredients.last.name.strip!
+          if amount.strip == "" && unit.strip == "" && ingredient =~ /^[-:;]+/
+            recipe.ingredients[-1] = Gourmet::Ingredient.append(
+              recipe.ingredients[-1], ingredient.gsub(/^[-:;]+/, " ")
+            )
           else
             recipe.ingredients << Gourmet::Ingredient.parse([
               amount.strip, unit.strip, ingredient.strip
@@ -181,6 +184,10 @@ module Gourmet
         tag == "publication"
       end
       self.source = nil if self.source == ""
+      self.ingredients.each do |ingredient|
+        ingredient.name.strip!
+        ingredient.name.gsub!(/ +/, " ")
+      end
 
       # Preprocess messed up directions
       self.directions.gsub!(/^(.+) Posted to(.*)$/i, "\\1\nPosted to\\2")
@@ -236,6 +243,11 @@ module Gourmet
       if self.source == nil && self.directions =~ /Florence Taft Eaton/
         self.source = self.directions[/(Florence Taft Eaton.*)$/i, 1]
         self.directions.gsub!(/Florence Taft Eaton.*$/i, "")
+      elsif self.source == nil &&
+          self.directions =~ /^[a-zA-Z\. ]+,\s*[\'\"][\w ]+[\'\"]$/
+        self.source =
+          self.directions[/^([a-zA-Z\. ]+,\s*[\'\"][\w ]+[\'\"])$/, 1]
+        self.directions.gsub!(/^[a-zA-Z\. ]+,\s*[\'\"][\w ]+[\'\"]$/, "")
       end
       self.source = self.source.strip if self.source != nil
       self.directions = self.directions.strip + "\n"
