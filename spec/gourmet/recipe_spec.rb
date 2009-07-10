@@ -91,6 +91,46 @@ describe Gourmet::Recipe, "with fixture #1" do
     )
   end
 
+  it "should have the correct steps" do
+    @recipe.steps.should include(
+      "Cut and fluff 1 lb of Kadayif dough in bowl with hands."
+    )
+    @recipe.steps.should include(
+      "Add half melted butter and mix until strands are evenly coated."
+    )
+    @recipe.steps.should include(
+      "Spread evenly in lightly buttered 17x13-inch baking pan."
+    )
+    @recipe.steps.should include(
+      "Combine half and half and heavy cream in large saucepan. " +
+      "Bring to slow boil over low heat."
+    )
+    @recipe.steps.should include(
+      "Combine cornstarch and milk, stirring until cornstarch is dissolved."
+    )
+    @recipe.steps.should include(
+      "Slowly add to cream mixture, stirring constantly, until mixture " +
+      "returns to slow boil. Spread hot cream filling over kadayif in pan."
+    )
+    @recipe.steps.should include(
+      "Cut and fluff remaining 1 lb. of kadayif in bowl. Add remaining " +
+      "melted butter and mix with hands until strands are evenly coated. " +
+      "Spread over top of cream layer, pressing down firmly to form an " +
+      "even surface."
+    )
+    @recipe.steps.should include(
+      "Place on lowest oven rack and bake at 450°F. until golden brown, " +
+      "about 20-25 minutes. If not golden, move pan to top rack and bake " +
+      "5 to 10 minutes longer."
+    )
+    @recipe.steps.should include(
+      "Meanwhile, prepare syrup. Combine sugar and water in saucepan and " +
+      "boil 5 to 10 minutes. Add lemon juice. Cool. Pour cold syrup evenly " +
+      "over kadayif as soon as it is removed from the oven. Cut into " +
+      "squares to serve."
+    )
+  end
+
   it "should have the correct directions" do
     @recipe.directions.should == <<-RECIPE
 Cut and fluff 1 lb of Kadayif dough in bowl with hands.

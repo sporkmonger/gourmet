@@ -58,6 +58,10 @@ module Gourmet
     attr_accessor :ingredients
     attr_accessor :directions
 
+    def steps
+      self.directions.split("\n\n").map { |step| step.strip.gsub(/\s+/, " ") }
+    end
+
     def self.parse(obj)
       return self.send("parse_#{Gourmet.parse_type(obj)}", obj)
     end
