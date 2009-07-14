@@ -55,6 +55,15 @@ describe Gourmet::Ingredient, "fully described" do
   it "should have the correct preparation" do
     @ingredient.preparation.should == "melted"
   end
+
+  it "should convert to a hash correctly" do
+    @ingredient.to_h.should == {
+      :quantity => 1.5,
+      :unit => "cups",
+      :name => "butter",
+      :preparation => "melted"
+    }
+  end
 end
 
 describe Gourmet::Ingredient, "with unicode quantity" do
@@ -76,6 +85,14 @@ describe Gourmet::Ingredient, "with unicode quantity" do
 
   it "should have no preparation" do
     @ingredient.preparation.should == nil
+  end
+
+  it "should convert to a hash correctly" do
+    @ingredient.to_h.should == {
+      :quantity => 1.5,
+      :unit => "tbsp",
+      :name => "butter"
+    }
   end
 end
 
@@ -99,6 +116,15 @@ describe Gourmet::Ingredient, "with padding" do
   it "should have the correct preparation" do
     @ingredient.preparation.should == "melted"
   end
+
+  it "should convert to a hash correctly" do
+    @ingredient.to_h.should == {
+      :quantity => 1.5,
+      :unit => "tbsp",
+      :name => "butter",
+      :preparation => "melted"
+    }
+  end
 end
 
 describe Gourmet::Ingredient, "with no whole number in fraction" do
@@ -120,6 +146,14 @@ describe Gourmet::Ingredient, "with no whole number in fraction" do
 
   it "should have no preparation" do
     @ingredient.preparation.should == nil
+  end
+
+  it "should convert to a hash correctly" do
+    @ingredient.to_h.should == {
+      :quantity => 0.5,
+      :unit => "tsp",
+      :name => "salt"
+    }
   end
 end
 
@@ -143,6 +177,14 @@ describe Gourmet::Ingredient, "with no whole number in fraction" do
   it "should have no preparation" do
     @ingredient.preparation.should == nil
   end
+
+  it "should convert to a hash correctly" do
+    @ingredient.to_h.should == {
+      :quantity => 0.5,
+      :unit => "tsp",
+      :name => "salt"
+    }
+  end
 end
 
 describe Gourmet::Ingredient, "with no unit" do
@@ -164,5 +206,12 @@ describe Gourmet::Ingredient, "with no unit" do
 
   it "should have no preparation" do
     @ingredient.preparation.should == nil
+  end
+
+  it "should convert to a hash correctly" do
+    @ingredient.to_h.should == {
+      :quantity => 3,
+      :name => "eggs"
+    }
   end
 end

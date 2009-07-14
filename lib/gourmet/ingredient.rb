@@ -206,6 +206,16 @@ module Gourmet
         self.section == other.section)
     end
 
+    def to_h
+      return {
+        :quantity => self.quantity,
+        :unit => self.unit,
+        :name => self.name,
+        :preparation => self.preparation,
+        :section => self.section
+      }.reject { |(key, value)| value == nil }
+    end
+
     def to_a
       return [
         self.quantity, self.unit, self.name, self.preparation, self.section
