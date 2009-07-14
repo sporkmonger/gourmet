@@ -85,6 +85,10 @@ describe Gourmet::Recipe, "with fixture #1" do
     )
   end
 
+  it "should have the correct sections" do
+    @recipe.sections.should == []
+  end
+
   it "should strip email addresses if a source is set" do
     @recipe.directions.should_not include(
       "From the recipe file of suzy@gannett.infi.net"

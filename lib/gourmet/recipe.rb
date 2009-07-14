@@ -58,6 +58,10 @@ module Gourmet
     attr_accessor :ingredients
     attr_accessor :directions
 
+    def sections
+      (self.ingredients.map { |ingredient| ingredient.section }).compact.uniq
+    end
+
     def steps
       self.directions.split("\n\n").map { |step| step.strip.gsub(/\s+/, " ") }
     end
