@@ -184,6 +184,17 @@ module Gourmet
       return recipe
     end
 
+    def to_h
+      return {
+        :title => self.title,
+        :tags => self.tags,
+        :servings => self.servings,
+        :source => self.source,
+        :ingredients => self.ingredients.map { |ingredient| ingredient.to_h },
+        :steps => self.steps
+      }.reject { |(key, value)| value == nil }
+    end
+
     def normalize!
       self.tags ||= []
       self.tags.reject! do |tag|
